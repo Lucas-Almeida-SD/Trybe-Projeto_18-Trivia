@@ -75,6 +75,9 @@ class Login extends React.Component {
             </button>
           </Link>
         </form>
+        <Link to="/configuracao">
+          <button type="button" data-testid="btn-settings">Configurações</button>
+        </Link>
       </section>
     );
   }

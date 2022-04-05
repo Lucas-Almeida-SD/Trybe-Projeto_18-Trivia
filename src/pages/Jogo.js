@@ -3,7 +3,9 @@ import React from 'react';
 class Jogo extends React.Component {
   render() {
     return (
-      <h1>Hello World</h1>
+      <div>
+        <h1>Pagina do jogo!!!</h1>
+      </div>
     );
   }
 }
