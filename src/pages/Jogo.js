@@ -3,6 +3,7 @@ import React from 'react';
 import propTypes from 'prop-types';
 import { connect } from 'react-redux';
 import md5 from 'crypto-js/md5';
+import './jogo.css';
 
 class Jogo extends React.Component {
   constructor(props) {
@@ -10,9 +11,11 @@ class Jogo extends React.Component {
     this.state = {
       questions: [],
       counter: 0,
+      click: false,
     };
     this.getQuestions = this.getQuestions.bind(this);
     this.renderMain = this.renderMain.bind(this);
+    this.alteraCor = this.alteraCor.bind(this);
   }
 
   componentDidMount() {
@@ -25,6 +28,17 @@ class Jogo extends React.Component {
     const data = await response.json();
     console.log('DATA', data);
     this.setState({ questions: data.results });
+  }
+
+  alteraCor(testeId) {
+    const { correct_answer: correctAnswer,
+      incorrect_answers: incorrectAnswers } = questions[counter];
+    const alternativas = [correctAnswer, ...incorrectAnswers];
+    alternativas.forEach((elem) => {
+      testeId === 'correct_answer'
+        ? elem.classList.add('correta')
+        : elem.classList.add('incorreta');
+    });
   }
 
   renderMain() {
@@ -46,7 +60,17 @@ class Jogo extends React.Component {
           contador = (elem !== correctAnswer) ? contador + 1 : contador;
           return (
             <div data-testid="answer-options" key={ index }>
-              <button type="button" data-testid={ testeId }>{ elem }</button>
+              <button
+                type="button"
+                data-testid={ testeId }
+                // className={ (click && testeId === 'correct-answer')
+                //   ? elem.classList.add('correta')
+                //   : elem.classList.add('incorreta') }
+                onClick={ this.alteraCor() }
+              >
+                { elem }
+
+              </button>
             </div>
           );
         })}
