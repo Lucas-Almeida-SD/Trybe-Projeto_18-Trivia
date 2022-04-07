@@ -107,6 +107,8 @@ class Jogo extends React.Component {
           );
         })}
         <p>{stopwatch}</p>
+        {(chosenAlternative || stopwatch === 0)
+          && <button data-testid="btn-next" type="button">Next</button>}
       </main>
     );
   }
