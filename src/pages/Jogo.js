@@ -11,10 +11,11 @@ class Jogo extends React.Component {
     this.state = {
       questions: [],
       counter: 0,
-      click: false,
+      chosenAlternative: false,
     };
     this.getQuestions = this.getQuestions.bind(this);
     this.renderMain = this.renderMain.bind(this);
+    this.chooseAlternative = this.chooseAlternative.bind(this);
     this.alteraCor = this.alteraCor.bind(this);
   }
 
@@ -30,20 +31,18 @@ class Jogo extends React.Component {
     this.setState({ questions: data.results });
   }
 
-  alteraCor(testeId) {
-    const { correct_answer: correctAnswer,
-      incorrect_answers: incorrectAnswers } = questions[counter];
-    const alternativas = [correctAnswer, ...incorrectAnswers];
-    alternativas.forEach((elem) => {
-      testeId === 'correct_answer'
-        ? elem.classList.add('correta')
-        : elem.classList.add('incorreta');
-    });
+  chooseAlternative() {
+    this.setState({ chosenAlternative: true });
+  }
+
+  alteraCor(chosenAlternative, testeId) {
+    if (chosenAlternative && testeId === 'correct-answer') { return 'correta'; }
+    if (chosenAlternative && testeId.includes('wrong-answer')) { return 'incorreta'; }
   }
 
   renderMain() {
     const num = 0.5;
-    const { questions, counter } = this.state;
+    const { questions, counter, chosenAlternative } = this.state;
     const { category, question, correct_answer: correctAnswer,
       incorrect_answers: incorrectAnswers } = questions[counter];
     const alternativas = [correctAnswer, ...incorrectAnswers];
@@ -63,10 +62,8 @@ class Jogo extends React.Component {
               <button
                 type="button"
                 data-testid={ testeId }
-                // className={ (click && testeId === 'correct-answer')
-                //   ? elem.classList.add('correta')
-                //   : elem.classList.add('incorreta') }
-                onClick={ this.alteraCor() }
+                className={ this.alteraCor(chosenAlternative, testeId) }
+                onClick={ this.chooseAlternative }
               >
                 { elem }
 
@@ -82,7 +79,6 @@ class Jogo extends React.Component {
     const { questions } = this.state;
     const { estado: { name, score, gravatarEmail } } = this.props;
     const converte = md5(gravatarEmail).toString();
-    // console.log('ESTADO', converte);
     return (
       <>
         <header>
