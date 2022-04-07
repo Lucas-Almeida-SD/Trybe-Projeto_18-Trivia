@@ -116,7 +116,7 @@ class Jogo extends React.Component {
                 type="button"
                 data-testid={ testeId }
                 className={ this.alteraCor(chosenAlternative, stopwatch, testeId) }
-                disabled={ (stopwatch === 0) }
+                disabled={ (chosenAlternative || stopwatch === 0) }
                 onClick={ () => this.chooseAlternative(elem, correctAnswer) }
               >
                 { elem }
