@@ -35,10 +35,12 @@ class Login extends React.Component {
     }
   }
 
-  handleClick() {
+  async handleClick() {
     const { login, token } = this.props;
+    const { history } = this.props;
     login(this.state);
-    token();
+    await token();
+    history.push('/jogo');
   }
 
   render() {
@@ -64,16 +66,14 @@ class Login extends React.Component {
               onChange={ this.handleChange }
             />
           </label>
-          <Link to="/jogo">
-            <button
-              data-testid="btn-play"
-              type="button"
-              disabled={ isDisabled }
-              onClick={ this.handleClick }
-            >
-              Play
-            </button>
-          </Link>
+          <button
+            data-testid="btn-play"
+            type="button"
+            disabled={ isDisabled }
+            onClick={ this.handleClick }
+          >
+            Play
+          </button>
         </form>
         <Link to="/configuracao">
           <button type="button" data-testid="btn-settings">Configurações</button>
@@ -93,4 +93,4 @@ export default connect(null, mapDispatchToProps)(Login);
 Login.propTypes = {
   login: propTypes.func.isRequired,
   token: propTypes.func.isRequired,
-};
+}.isRequired;
