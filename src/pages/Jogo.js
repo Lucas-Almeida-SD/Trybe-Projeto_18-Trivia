@@ -25,12 +25,12 @@ class Jogo extends React.Component {
     this.chooseAlternative = this.chooseAlternative.bind(this);
     this.calculatePoints = this.calculatePoints.bind(this);
     this.alteraCor = this.alteraCor.bind(this);
+    this.nextQuestion = this.nextQuestion.bind(this);
   }
 
   componentDidMount() {
-    const num = 1000;
     this.getQuestions();
-    timer = setInterval(this.updateStopwatch, num);
+    this.startTimer();
   }
 
   async getQuestions() {
@@ -38,6 +38,11 @@ class Jogo extends React.Component {
     const response = await fetch(`https://opentdb.com/api.php?amount=5&token=${token}`);
     const data = await response.json();
     this.setState({ questions: data.results }, () => this.sortAlternatives());
+  }
+
+  startTimer() {
+    const num = 1000;
+    timer = setInterval(this.updateStopwatch, num);
   }
 
   updateStopwatch() {
@@ -77,6 +82,20 @@ class Jogo extends React.Component {
     }
   }
 
+  nextQuestion() {
+    this.setState((previous) => ({ counter: previous.counter + 1,
+      chosenAlternative: false,
+      stopwatch: 30 }), () => {
+      const { questions, counter } = this.state;
+      if (counter === questions.length) {
+        const { history } = this.props;
+        return history.push('/feedback');
+      }
+      this.sortAlternatives();
+      this.startTimer();
+    });
+  }
+
   renderMain() {
     const { questions, counter, alternatives, chosenAlternative, stopwatch } = this.state;
     const { category, question, correct_answer: correctAnswer } = questions[counter];
@@ -107,14 +126,20 @@ class Jogo extends React.Component {
           );
         })}
         <p>{stopwatch}</p>
-        {(chosenAlternative || stopwatch === 0)
-          && <button data-testid="btn-next" type="button">Next</button>}
+        {(chosenAlternative || stopwatch === 0) && (
+          <button
+            data-testid="btn-next"
+            type="button"
+            onClick={ this.nextQuestion }
+          >
+            Next
+          </button>)}
       </main>
     );
   }
 
   render() {
-    const { questions } = this.state;
+    const { questions, counter } = this.state;
     const { estado: { name, score, gravatarEmail } } = this.props;
     const converte = md5(gravatarEmail).toString();
     return (
@@ -126,7 +151,7 @@ class Jogo extends React.Component {
           { ' ' }
           <img src={ `https://www.gravatar.com/avatar/${converte}` } alt="avatar" data-testid="header-profile-picture" />
         </header>
-        { questions.length > 0 && this.renderMain() }
+        { (questions.length > 0 && counter < questions.length) && this.renderMain() }
       </>
     );
   }
