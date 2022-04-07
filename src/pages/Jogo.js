@@ -2,7 +2,7 @@
 import React from 'react';
 import propTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { actionSumScore } from '../redux/actions/index';
+import { actionSumScore, actionAssertions } from '../redux/actions/index';
 import Header from '../components/Header';
 import './jogo.css';
 
@@ -60,9 +60,10 @@ class Jogo extends React.Component {
   }
 
   chooseAlternative(alternative, correctAnswer) {
+    const { assertions } = this.props;
     this.setState({ chosenAlternative: true });
     clearInterval(timer);
-    if (alternative === correctAnswer) { this.calculatePoints(); }
+    if (alternative === correctAnswer) { this.calculatePoints(); assertions(); }
   }
 
   calculatePoints() {
@@ -155,6 +156,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   sumScore: (score) => dispatch(actionSumScore(score)),
+  assertions: () => dispatch(actionAssertions()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Jogo);

@@ -2,6 +2,7 @@ export const ACTION_LOGIN = 'ACTION_LOGIN';
 export const REQUEST_API = 'REQUEST_API';
 export const RESPONSE_API = 'RESPONSE_API';
 export const SUM_SCORE = 'SUM_SCORE';
+export const ASSERTIONS = 'ASSERTIONS';
 
 export const actionLogin = (payload) => ({
   type: ACTION_LOGIN,
@@ -27,5 +28,10 @@ export function fetchToken() {
 
 export const actionSumScore = (payload) => ({
   type: SUM_SCORE,
+  payload,
+});
+
+export const actionAssertions = (payload) => ({
+  type: ASSERTIONS,
   payload,
 });
