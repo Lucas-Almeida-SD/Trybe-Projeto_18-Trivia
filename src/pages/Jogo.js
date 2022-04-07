@@ -5,34 +5,55 @@ import { connect } from 'react-redux';
 import md5 from 'crypto-js/md5';
 import './jogo.css';
 
+let timer;
+
 class Jogo extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       questions: [],
+      alternatives: [],
       counter: 0,
       chosenAlternative: false,
+      stopwatch: 30,
     };
     this.getQuestions = this.getQuestions.bind(this);
+    this.sortAlternatives = this.sortAlternatives.bind(this);
     this.renderMain = this.renderMain.bind(this);
     this.chooseAlternative = this.chooseAlternative.bind(this);
     this.alteraCor = this.alteraCor.bind(this);
   }
 
   componentDidMount() {
+    const num = 1000;
     this.getQuestions();
+    timer = setInterval(this.updateStopwatch, num);
   }
 
   async getQuestions() {
     const { token } = this.props;
     const response = await fetch(`https://opentdb.com/api.php?amount=5&token=${token}`);
     const data = await response.json();
-    console.log('DATA', data);
-    this.setState({ questions: data.results });
+    this.setState({ questions: data.results }, () => this.sortAlternatives());
+  }
+
+  updateStopwatch = () => {
+    this.setState((previous) => ({ stopwatch: previous.stopwatch - 1 }));
+  }
+
+  sortAlternatives() {
+    const { questions, counter } = this.state;
+    const { correct_answer: correctAnswer,
+      incorrect_answers: incorrectAnswers } = questions[counter];
+    const num = 0.5;
+    const alternatives = [correctAnswer, ...incorrectAnswers];
+    alternatives.sort(() => Math.random() - num);
+    this.setState({ alternatives });
   }
 
   chooseAlternative() {
     this.setState({ chosenAlternative: true });
+    clearInterval(timer);
   }
 
   alteraCor(chosenAlternative, testeId) {
@@ -41,18 +62,15 @@ class Jogo extends React.Component {
   }
 
   renderMain() {
-    const num = 0.5;
-    const { questions, counter, chosenAlternative } = this.state;
-    const { category, question, correct_answer: correctAnswer,
-      incorrect_answers: incorrectAnswers } = questions[counter];
-    const alternativas = [correctAnswer, ...incorrectAnswers];
-    alternativas.sort(() => Math.random() - num);
+    const { questions, counter, alternatives, chosenAlternative, stopwatch } = this.state;
+    const { category, question, correct_answer: correctAnswer } = questions[counter];
+    if (stopwatch === 0) { clearInterval(timer); }
     let contador = 0;
     return (
       <main>
         <p data-testid="question-category">{ category }</p>
         <p data-testid="question-text">{ question }</p>
-        { alternativas.map((elem, index) => {
+        { alternatives.map((elem, index) => {
           const testeId = (elem === correctAnswer)
             ? 'correct-answer'
             : `wrong-answer-${contador}`;
@@ -63,6 +81,7 @@ class Jogo extends React.Component {
                 type="button"
                 data-testid={ testeId }
                 className={ this.alteraCor(chosenAlternative, testeId) }
+                disabled={ (stopwatch === 0) }
                 onClick={ this.chooseAlternative }
               >
                 { elem }
@@ -71,6 +90,7 @@ class Jogo extends React.Component {
             </div>
           );
         })}
+        <p>{stopwatch}</p>
       </main>
     );
   }
