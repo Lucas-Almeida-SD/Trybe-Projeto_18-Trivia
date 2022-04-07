@@ -2,8 +2,8 @@
 import React from 'react';
 import propTypes from 'prop-types';
 import { connect } from 'react-redux';
-import md5 from 'crypto-js/md5';
 import { actionSumScore } from '../redux/actions/index';
+import Header from '../components/Header';
 import './jogo.css';
 
 let timer;
@@ -116,7 +116,7 @@ class Jogo extends React.Component {
                 type="button"
                 data-testid={ testeId }
                 className={ this.alteraCor(chosenAlternative, stopwatch, testeId) }
-                disabled={ (stopwatch === 0) }
+                disabled={ (chosenAlternative || stopwatch === 0) }
                 onClick={ () => this.chooseAlternative(elem, correctAnswer) }
               >
                 { elem }
@@ -140,17 +140,9 @@ class Jogo extends React.Component {
 
   render() {
     const { questions, counter } = this.state;
-    const { estado: { name, score, gravatarEmail } } = this.props;
-    const converte = md5(gravatarEmail).toString();
     return (
       <>
-        <header>
-          <span data-testid="header-player-name">{ name }</span>
-          { ' ' }
-          <span data-testid="header-score">{ score }</span>
-          { ' ' }
-          <img src={ `https://www.gravatar.com/avatar/${converte}` } alt="avatar" data-testid="header-profile-picture" />
-        </header>
+        <Header />
         { (questions.length > 0 && counter < questions.length) && this.renderMain() }
       </>
     );
@@ -158,7 +150,6 @@ class Jogo extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-  estado: state.player,
   token: state.token,
 });
 
@@ -169,5 +160,5 @@ const mapDispatchToProps = (dispatch) => ({
 export default connect(mapStateToProps, mapDispatchToProps)(Jogo);
 
 Jogo.propTypes = {
-  estado: propTypes.arrayOf({}),
+  sumScore: propTypes.func,
 }.isRequired;
