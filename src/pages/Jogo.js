@@ -3,6 +3,7 @@ import React from 'react';
 import propTypes from 'prop-types';
 import { connect } from 'react-redux';
 import md5 from 'crypto-js/md5';
+import { actionSumScore } from '../redux/actions/index';
 import './jogo.css';
 
 let timer;
@@ -18,9 +19,11 @@ class Jogo extends React.Component {
       stopwatch: 30,
     };
     this.getQuestions = this.getQuestions.bind(this);
+    this.updateStopwatch = this.updateStopwatch.bind(this);
     this.sortAlternatives = this.sortAlternatives.bind(this);
     this.renderMain = this.renderMain.bind(this);
     this.chooseAlternative = this.chooseAlternative.bind(this);
+    this.calculatePoints = this.calculatePoints.bind(this);
     this.alteraCor = this.alteraCor.bind(this);
   }
 
@@ -37,7 +40,7 @@ class Jogo extends React.Component {
     this.setState({ questions: data.results }, () => this.sortAlternatives());
   }
 
-  updateStopwatch = () => {
+  updateStopwatch() {
     this.setState((previous) => ({ stopwatch: previous.stopwatch - 1 }));
   }
 
@@ -51,14 +54,27 @@ class Jogo extends React.Component {
     this.setState({ alternatives });
   }
 
-  chooseAlternative() {
+  chooseAlternative(alternative, correctAnswer) {
     this.setState({ chosenAlternative: true });
     clearInterval(timer);
+    if (alternative === correctAnswer) { this.calculatePoints(); }
   }
 
-  alteraCor(chosenAlternative, testeId) {
-    if (chosenAlternative && testeId === 'correct-answer') { return 'correta'; }
-    if (chosenAlternative && testeId.includes('wrong-answer')) { return 'incorreta'; }
+  calculatePoints() {
+    const { sumScore } = this.props;
+    const { questions, counter, stopwatch } = this.state;
+    const difficultyLevel = { hard: 3, medium: 2, easy: 1 };
+    const { difficulty } = questions[counter];
+    const num10 = 10;
+    const score = num10 + (stopwatch * difficultyLevel[difficulty]);
+    sumScore(score);
+  }
+
+  alteraCor(chosenAlternative, stopwatch, testeId) {
+    if (chosenAlternative || stopwatch === 0) {
+      if (testeId === 'correct-answer') { return 'correta'; }
+      return 'incorreta';
+    }
   }
 
   renderMain() {
@@ -80,9 +96,9 @@ class Jogo extends React.Component {
               <button
                 type="button"
                 data-testid={ testeId }
-                className={ this.alteraCor(chosenAlternative, testeId) }
+                className={ this.alteraCor(chosenAlternative, stopwatch, testeId) }
                 disabled={ (stopwatch === 0) }
-                onClick={ this.chooseAlternative }
+                onClick={ () => this.chooseAlternative(elem, correctAnswer) }
               >
                 { elem }
 
@@ -119,7 +135,11 @@ const mapStateToProps = (state) => ({
   token: state.token,
 });
 
-export default connect(mapStateToProps)(Jogo);
+const mapDispatchToProps = (dispatch) => ({
+  sumScore: (score) => dispatch(actionSumScore(score)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Jogo);
 
 Jogo.propTypes = {
   estado: propTypes.arrayOf({}),
