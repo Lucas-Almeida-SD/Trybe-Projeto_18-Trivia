@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import propTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 
 class Feedback extends React.Component {
@@ -32,7 +31,7 @@ class Feedback extends React.Component {
           >
             Play Again
           </button>
-        </Link> 
+        </Link>
         <Link to="/ranking">
           <button type="button" data-testid="btn-ranking">Ranking</button>
         </Link>
