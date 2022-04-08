@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import propTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 
 class Feedback extends React.Component {
@@ -13,6 +14,9 @@ class Feedback extends React.Component {
         {assertions < min
           ? <p data-testid="feedback-text">Could be better...</p>
           : <p data-testid="feedback-text">Well Done!</p>}
+        <Link to="/ranking">
+          <button type="button" data-testid="btn-ranking">Ranking</button>
+        </Link>
       </>
     );
   }
